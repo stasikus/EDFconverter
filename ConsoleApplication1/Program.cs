@@ -13,9 +13,9 @@ namespace ConsoleApplication1
         static void Main(string[] args)
         {
             Console.WriteLine("Enter path to edf2ascii.exe...");
-            string edf2asciiPath = Console.ReadLine();
+            string edf2asciiPath = Console.ReadLine();// "D:\\diplom"; //
             Console.WriteLine("Enter path to parent dir...");
-            string path = Console.ReadLine();
+            string path = Console.ReadLine(); //"D:\\diplom\\data";
 
 
             string[] folders = System.IO.Directory.GetDirectories(path, "*", System.IO.SearchOption.AllDirectories);
@@ -27,7 +27,21 @@ namespace ConsoleApplication1
 
                 for (int j = 0; j < files.Length; j++)
                 {
-                    string strCmdText = ""+edf2asciiPath+"\\edf2ascii.exe "+files[j].ToString()+"";
+                    string nameFolder = Path.GetFileName(files[j]).Substring(0, 7);
+                    string newFolderPath = Path.GetDirectoryName(files[j]);
+                    string nameCopiedFile = newFolderPath + "\\" + nameFolder + "\\" + nameFolder + ".edf";
+
+                    if (Directory.Exists(nameFolder))
+                    {
+                        File.Copy(files[j], nameCopiedFile);
+                    }
+                    else
+                    {
+                        System.IO.Directory.CreateDirectory(newFolderPath + "\\" + nameFolder);
+                        File.Copy(files[j], nameCopiedFile);
+                    }
+
+                    string strCmdText = "" + edf2asciiPath + "\\edf2ascii.exe " + nameCopiedFile + "";
 
                     var startInfo = new ProcessStartInfo
                     {
@@ -45,6 +59,11 @@ namespace ConsoleApplication1
                     process.StandardInput.WriteLine("exit");
 
                     process.WaitForExit();
+
+                    if (File.Exists(nameCopiedFile))
+                    {
+                        File.Delete(nameCopiedFile);
+                    }
 
                     Console.WriteLine(files[j].ToString() + " - Done");
                 }
